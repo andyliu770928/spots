@@ -126,7 +126,7 @@ export default function Home() {
           />
         </div>
         
-        <div className="px-5 py-2 bg-white border border-slate-100 rounded-2xl shadow-sm text-center flex flex-col justify-center min-w-[90px]">
+        <div className="px-5 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm text-center flex flex-col justify-center min-w-[90px]">
           <span className="block text-2xl font-black text-slate-800 leading-none">
             {loading ? '-' : filteredPlaces.length}
           </span>

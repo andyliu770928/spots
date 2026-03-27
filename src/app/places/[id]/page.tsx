@@ -12,7 +12,8 @@ import {
   Share2,
   Loader2,
   MapPinOff,
-  Clock
+  Clock,
+  Star
 } from 'lucide-react'
 import { Place } from '@/types'
 import { api } from '@/lib/api'
@@ -24,6 +25,7 @@ export default function PlaceDetailPage() {
   const [place, setPlace] = useState<Place | null>(null)
   const [loading, setLoading] = useState(true)
   const [ratingSaving, setRatingSaving] = useState(false)
+  const [ratingMenuOpen, setRatingMenuOpen] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -115,23 +117,17 @@ export default function PlaceDetailPage() {
 
         {/* Title Overlay */}
         <div className="absolute bottom-6 left-6 right-6">
-          <div className="flex gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
               {getCategoryLabel(place.category)}
             </span>
-            <div className="flex items-center gap-1 rounded-full bg-white/18 px-2 py-1 backdrop-blur-md">
+            <div className="flex items-center gap-1 rounded-full bg-white/18 px-2.5 py-1.5 backdrop-blur-md">
               {ratingButtons.map(value => (
-                <button
+                <Star
                   key={value}
-                  type="button"
-                  className={`h-6 min-w-6 rounded-full px-1.5 text-[10px] font-bold transition-all ${
-                    (place.rating || 0) >= value
-                      ? 'bg-amber-400 text-slate-900'
-                      : 'bg-white/18 text-white/90'
-                  }`}
-                >
-                  {value}
-                </button>
+                  size={12}
+                  className={(place.rating || 0) >= value ? 'fill-amber-400 text-amber-400' : 'text-white/85'}
+                />
               ))}
             </div>
           </div>
@@ -166,37 +162,52 @@ export default function PlaceDetailPage() {
               <span className="text-[10px] font-bold text-slate-500">查看來源</span>
             </a>
           )}
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1 rounded-full bg-amber-50 p-1 text-amber-500">
-              <button
-                type="button"
-                onClick={() => handleRatingChange(null)}
-                disabled={ratingSaving}
-                className={`rounded-full px-2 py-2 text-[10px] font-bold transition-all ${
-                  !place.rating ? 'bg-slate-700 text-white' : 'text-slate-500 hover:bg-white'
-                } ${ratingSaving ? 'opacity-60' : ''}`}
-              >
-                未
-              </button>
-              {ratingButtons.map(value => (
+          <div className="relative flex flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setRatingMenuOpen(prev => !prev)}
+              disabled={ratingSaving}
+              className={`flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-500 transition-all hover:bg-amber-100 ${ratingSaving ? 'opacity-60' : ''}`}
+            >
+              <Star size={20} className={place.rating ? 'fill-amber-400 text-amber-500' : 'text-amber-500'} />
+            </button>
+            {ratingMenuOpen && (
+              <div className="absolute top-0 right-14 z-20 flex min-w-[160px] flex-col gap-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl">
                 <button
-                  key={value}
                   type="button"
-                  onClick={() => handleRatingChange(value)}
-                  disabled={ratingSaving}
-                  className={`rounded-full px-2 py-2 text-[10px] font-bold transition-all ${
-                    place.rating === value
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-white/70 text-amber-700 hover:bg-white'
-                  } ${ratingSaving ? 'opacity-60' : ''}`}
+                  onClick={async () => {
+                    await handleRatingChange(null)
+                    setRatingMenuOpen(false)
+                  }}
+                  className={`rounded-xl px-3 py-2 text-left text-xs font-semibold transition-all ${
+                    !place.rating ? 'bg-slate-700 text-white' : 'text-slate-500 hover:bg-slate-50'
+                  }`}
                 >
-                  {value}
+                  沒去過
                 </button>
-              ))}
-            </div>
-            <span className="text-[10px] font-bold text-slate-500">
+                {ratingButtons.map(value => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={async () => {
+                      await handleRatingChange(value)
+                      setRatingMenuOpen(false)
+                    }}
+                    className={`flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold transition-all ${
+                      place.rating === value
+                        ? 'bg-amber-500 text-white'
+                        : 'text-amber-700 hover:bg-amber-50'
+                    }`}
+                  >
+                    <Star size={14} className={place.rating === value ? 'fill-white text-white' : 'fill-amber-300 text-amber-500'} />
+                    {value} 分
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="text-[10px] font-bold text-slate-500">
               {ratingSaving ? '儲存中...' : '評分'}
-            </span>
+            </div>
           </div>
         </div>
 
