@@ -106,7 +106,7 @@ export default function Home() {
           <img
             src="/frog.avif"
             alt="Frog"
-            className="h-10 w-10 rounded-2xl object-cover shadow-sm ring-1 ring-slate-200"
+            className="h-14 w-14 object-contain"
           />
           <span>旅圖書籤匣</span>
         </h1>
