@@ -63,6 +63,7 @@ export default function PlaceDetailPage() {
   }
 
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || place.title)}`
+  const ratingButtons = [1, 2, 3, 4, 5]
 
   return (
     <main className="min-h-screen bg-[#FDFCF8] text-slate-800 pb-12">
@@ -100,9 +101,21 @@ export default function PlaceDetailPage() {
             <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
               {getCategoryLabel(place.category)}
             </span>
-            <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
-              {getRatingLabel(place.rating)}
-            </span>
+            <div className="flex items-center gap-1 rounded-full bg-white/18 px-2 py-1 backdrop-blur-md">
+              {ratingButtons.map(value => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`h-6 min-w-6 rounded-full px-1.5 text-[10px] font-bold transition-all ${
+                    (place.rating || 0) >= value
+                      ? 'bg-amber-400 text-slate-900'
+                      : 'bg-white/18 text-white/90'
+                  }`}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-white drop-shadow-md">{place.title}</h1>
         </div>
@@ -136,8 +149,9 @@ export default function PlaceDetailPage() {
             </a>
           )}
           <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center">
-              <Star size={20} />
+            <div className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-3 text-amber-500">
+              <Star size={18} />
+              <span className="text-xs font-bold">{place.rating || '-'}</span>
             </div>
             <span className="text-[10px] font-bold text-slate-500">評分</span>
           </div>
@@ -198,7 +212,30 @@ export default function PlaceDetailPage() {
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">評分</p>
-                  <p className="text-sm text-slate-600">{getRatingLabel(place.rating)}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                        !place.rating ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      沒去過
+                    </button>
+                    {ratingButtons.map(value => (
+                      <button
+                        key={value}
+                        type="button"
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                          place.rating === value
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {value} 分
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-sm text-slate-600">{getRatingLabel(place.rating)}</p>
                 </div>
               </div>
               <div className="flex gap-4">
