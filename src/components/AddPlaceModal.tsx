@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
 import { Place, PlaceCategory, PlaceStatus } from '@/types'
+import { detectSourcePlatform } from '@/lib/places'
 
 interface AddPlaceModalProps {
   isOpen: boolean
@@ -18,20 +19,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   xiaohongshu: '小紅書',
   google_maps: 'Google Maps',
   web: 'Web'
-}
-
-function detectSourcePlatform(url: string): string {
-  const normalized = url.toLowerCase()
-
-  if (normalized.includes('instagram.com') || normalized.includes('instagr.am')) return 'instagram'
-  if (normalized.includes('facebook.com') || normalized.includes('fb.watch')) return 'facebook'
-  if (normalized.includes('youtube.com') || normalized.includes('youtu.be')) return 'youtube'
-  if (normalized.includes('tiktok.com')) return 'tiktok'
-  if (normalized.includes('xiaohongshu.com') || normalized.includes('xhslink.com')) return 'xiaohongshu'
-  if (normalized.includes('maps.google.') || normalized.includes('google.com/maps')) return 'google_maps'
-  if (!normalized) return ''
-
-  return 'web'
 }
 
 const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }) => {
