@@ -6,6 +6,7 @@ import { Search, Plus, Calendar, Loader2, MapPinOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import SpotCard from '@/components/SpotCard'
 import CategoryFilter from '@/components/CategoryFilter'
+import RatingFilter from '@/components/RatingFilter'
 import AddPlaceModal from '@/components/AddPlaceModal'
 import { Place } from '@/types'
 import { api } from '@/lib/api'
@@ -14,6 +15,7 @@ export default function Home() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedRating, setSelectedRating] = useState<string | null>(null)
   const [places, setPlaces] = useState<Place[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -63,8 +65,13 @@ export default function Home() {
       place.summary?.toLowerCase().includes(searchQuery.toLowerCase())
     
     const matchesCategory = selectedCategory ? place.category === selectedCategory : true
+    const matchesRating = !selectedRating
+      ? true
+      : selectedRating === 'unrated'
+        ? !place.rating
+        : (place.rating || 0) >= Number(selectedRating)
     
-    return matchesSearch && matchesCategory
+    return matchesSearch && matchesCategory && matchesRating
   })
 
   return (
@@ -107,6 +114,13 @@ export default function Home() {
         <CategoryFilter 
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
+        />
+      </div>
+
+      <div className="px-6 mb-8">
+        <RatingFilter
+          selectedRating={selectedRating}
+          onSelectRating={setSelectedRating}
         />
       </div>
 

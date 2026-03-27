@@ -28,7 +28,9 @@ export interface Place {
   why_go?: string
   tags?: string[]
   status: PlaceStatus
+  rating?: number | null
   notes?: string
+  opening_hours?: string
   cover_image_url?: string
   created_at: string
   updated_at: string

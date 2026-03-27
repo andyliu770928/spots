@@ -6,10 +6,10 @@ import {
   Edit2, 
   Trash2, 
   Sparkles, 
-  Clock, 
-  Phone, 
-  Camera 
+  Clock,
+  Star
 } from 'lucide-react'
+import { getCategoryLabel, getRatingLabel } from '@/lib/places'
 
 interface SpotCardProps {
   place: Place
@@ -43,17 +43,13 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
           </h3>
           <div className="flex flex-wrap gap-2">
             <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-              {place.category}
+              {getCategoryLabel(place.category)}
             </span>
-            {place.status !== 'inbox' && (
-              <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                place.status === 'visited' ? 'bg-green-100 text-green-700' : 
-                place.status === 'shortlisted' ? 'bg-blue-100 text-blue-700' :
-                'bg-slate-100 text-slate-700'
-              }`}>
-                {place.status}
-              </span>
-            )}
+            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+              place.rating ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
+            }`}>
+              {place.rating ? `${place.rating} 分` : '沒去過'}
+            </span>
           </div>
         </div>
 
@@ -83,6 +79,18 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
               <p className="line-clamp-1">{place.address}</p>
             </div>
           )}
+
+          {place.opening_hours && (
+            <div className="flex gap-2">
+              <Clock size={16} className="text-amber-400 mt-1 flex-shrink-0" />
+              <p className="line-clamp-1">{place.opening_hours}</p>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Star size={16} className="text-amber-400 mt-1 flex-shrink-0" />
+            <p>{getRatingLabel(place.rating)}</p>
+          </div>
         </div>
 
         {/* Actions */}

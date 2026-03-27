@@ -7,15 +7,17 @@ import {
   MapPin, 
   ExternalLink, 
   Calendar, 
-  Tag, 
   MessageSquare, 
   Sparkles,
   Share2,
   Loader2,
-  MapPinOff
+  MapPinOff,
+  Star,
+  Clock
 } from 'lucide-react'
 import { Place } from '@/types'
 import { api } from '@/lib/api'
+import { getCategoryLabel, getRatingLabel } from '@/lib/places'
 
 export default function PlaceDetailPage() {
   const params = useParams()
@@ -96,10 +98,10 @@ export default function PlaceDetailPage() {
         <div className="absolute bottom-6 left-6 right-6">
           <div className="flex gap-2 mb-2">
             <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
-              {place.category}
+              {getCategoryLabel(place.category)}
             </span>
             <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
-              {place.status}
+              {getRatingLabel(place.rating)}
             </span>
           </div>
           <h1 className="text-3xl font-bold text-white drop-shadow-md">{place.title}</h1>
@@ -134,10 +136,10 @@ export default function PlaceDetailPage() {
             </a>
           )}
           <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
-              <Tag size={20} />
+            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center">
+              <Star size={20} />
             </div>
-            <span className="text-[10px] font-bold text-slate-500">收藏狀態</span>
+            <span className="text-[10px] font-bold text-slate-500">評分</span>
           </div>
         </div>
 
@@ -188,6 +190,24 @@ export default function PlaceDetailPage() {
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">地址</p>
                   <p className="text-sm text-slate-600">{place.address || '未填寫地址'}</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
+                  <Star size={16} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">評分</p>
+                  <p className="text-sm text-slate-600">{getRatingLabel(place.rating)}</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
+                  <Clock size={16} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">營業時間</p>
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap">{place.opening_hours || '未填寫營業時間'}</p>
                 </div>
               </div>
               {(place.notes || place.source_platform) && (

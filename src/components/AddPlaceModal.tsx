@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
-import { Place, PlaceCategory, PlaceStatus } from '@/types'
+import { Place, PlaceCategory } from '@/types'
 import { detectSourcePlatform } from '@/lib/places'
 
 interface AddPlaceModalProps {
@@ -33,8 +33,10 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
     summary: '',
     why_go: '',
     notes: '',
+    opening_hours: '',
     tags: [] as string[],
-    status: 'inbox' as PlaceStatus,
+    status: 'inbox' as const,
+    rating: null as number | null,
     cover_image_url: '',
     source_platform: ''
   })
@@ -154,19 +156,26 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
                 <option value="shop_visit">店訪</option>
               </select>
             </div>
-            {/* Status */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">狀態</label>
-              <select 
-                data-testid="place-status"
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">評分</label>
+              <select
+                data-testid="place-rating"
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm appearance-none"
-                value={formData.status}
-                onChange={(e) => updateFormData({ status: e.target.value as PlaceStatus })}
+                value={formData.rating ?? ''}
+                onChange={(e) => {
+                  const ratingValue = e.target.value ? Number(e.target.value) : null
+                  updateFormData({
+                    rating: ratingValue,
+                    status: ratingValue ? 'visited' : 'inbox',
+                  })
+                }}
               >
-                <option value="inbox">Inbox</option>
-                <option value="shortlisted">有興趣</option>
-                <option value="visited">已去過</option>
-                <option value="archived">封存</option>
+                <option value="">沒去過</option>
+                <option value="1">1 / 5</option>
+                <option value="2">2 / 5</option>
+                <option value="3">3 / 5</option>
+                <option value="4">4 / 5</option>
+                <option value="5">5 / 5</option>
               </select>
             </div>
           </div>
@@ -206,6 +215,18 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
               placeholder="完整地址"
               value={formData.address}
               onChange={(e) => updateFormData({ address: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">營業時間</label>
+            <input
+              type="text"
+              data-testid="place-opening-hours"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+              placeholder="例如：11:00-19:00，週二公休"
+              value={formData.opening_hours}
+              onChange={(e) => updateFormData({ opening_hours: e.target.value })}
             />
           </div>
 

@@ -1,5 +1,4 @@
 import React from 'react'
-import { PlaceCategory } from '@/types'
 import { 
   Palmtree, 
   Utensils, 
@@ -23,7 +22,7 @@ const categories = [
   { id: 'spot', label: '景點', icon: <Palmtree size={14} /> },
   { id: 'food', label: '美食', icon: <Utensils size={14} /> },
   { id: 'hotel', label: '住宿', icon: <Hotel size={14} /> },
-  { id: 'activity', label: '活動', icon: <Lightbulb size={14} /> },
+  { id: 'idea', label: '靈感', icon: <Lightbulb size={14} /> },
   { id: 'hiking', label: '登山', icon: <Mountain size={14} /> },
   { id: 'dessert', label: '甜點', icon: <IceCream size={14} /> },
   { id: 'photography', label: '攝影', icon: <Camera size={14} /> },

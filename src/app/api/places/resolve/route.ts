@@ -156,6 +156,8 @@ export async function POST(request: Request) {
       summary: combinedSummary,
       why_go: combinedSummary,
       tags,
+      rating: null,
+      opening_hours: undefined,
       cover_image_url: preview.image,
       status: 'inbox',
     })

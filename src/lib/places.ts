@@ -29,6 +29,39 @@ export interface ResolvedPlaceDraft extends Partial<Place> {
   missing_fields: string[]
 }
 
+export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
+  spot: '景點',
+  food: '美食',
+  hotel: '住宿',
+  idea: '靈感',
+  hiking: '登山',
+  dessert: '甜點',
+  photography: '攝影',
+  hidden_gem: '秘境',
+  shop_visit: '探店',
+  coffee: '咖啡',
+}
+
+export function getCategoryLabel(category: PlaceCategory): string {
+  return CATEGORY_LABELS[category] || category
+}
+
+export function normalizeRating(value: unknown): number | null | undefined {
+  if (value === null) return null
+  if (value === undefined || value === '') return undefined
+
+  const parsed = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(parsed)) return undefined
+  if (parsed < 1 || parsed > 5) return null
+
+  return Math.round(parsed)
+}
+
+export function getRatingLabel(rating?: number | null): string {
+  if (!rating) return '沒去過'
+  return `${rating} / 5`
+}
+
 export function detectSourcePlatform(url?: string): string {
   const normalized = (url || '').toLowerCase()
 
@@ -143,9 +176,12 @@ export function normalizePlaceInput(input: Partial<Place> & Record<string, unkno
   const category = ALLOWED_CATEGORIES.includes(input.category as PlaceCategory)
     ? (input.category as PlaceCategory)
     : 'spot'
+  const rating = normalizeRating(input.rating)
   const status = ALLOWED_STATUSES.includes(input.status as PlaceStatus)
     ? (input.status as PlaceStatus)
-    : 'inbox'
+    : rating && rating > 0
+      ? 'visited'
+      : 'inbox'
 
   return {
     title: normalizeText(input.title),
@@ -158,8 +194,10 @@ export function normalizePlaceInput(input: Partial<Place> & Record<string, unkno
     summary: normalizeText(input.summary),
     why_go: normalizeText(input.why_go),
     notes: normalizeText(input.notes),
+    opening_hours: normalizeText(input.opening_hours),
     cover_image_url: normalizeText(input.cover_image_url),
     tags: normalizeTags(input.tags),
     status,
+    rating,
   }
 }

@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS places (
   why_go TEXT,
   tags TEXT[],
   status TEXT DEFAULT 'inbox',
+  rating INT,
   notes TEXT,
+  opening_hours TEXT,
   cover_image_url TEXT,
   user_id UUID DEFAULT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -61,6 +63,8 @@ INSERT INTO places (
   summary, 
   tags, 
   status, 
+  rating,
+  opening_hours,
   cover_image_url,
   source_url
 ) VALUES (
@@ -71,7 +75,13 @@ INSERT INTO places (
   '新北市新店區北新路一段349號', 
   '每日現煮現熬魚湯、肉質肥美彈牙、小菜茄子份量大、連滷肉飯評價都很高。', 
   ARRAY['新店', '鱸魚湯', '米其林', '在地美食'], 
-  'shortlisted', 
+  'visited',
+  5,
+  '11:00-20:30',
   'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1471&auto=format&fit=crop',
   'https://www.google.com/maps/search/?api=1&query=新店超人鱸魚湯'
 );
+
+-- 若 places 已存在，可補跑以下欄位升級
+ALTER TABLE places ADD COLUMN IF NOT EXISTS rating INT;
+ALTER TABLE places ADD COLUMN IF NOT EXISTS opening_hours TEXT;
