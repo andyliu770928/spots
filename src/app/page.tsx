@@ -102,7 +102,14 @@ export default function Home() {
         >
           <Calendar size={22} />
         </Link>
-        <h1 className="text-4xl font-black tracking-tighter text-slate-800">旅圖書籤匣</h1>
+        <h1 className="flex items-center justify-center gap-3 text-4xl font-black tracking-tighter text-slate-800">
+          <img
+            src="/frog.avif"
+            alt="Frog"
+            className="h-10 w-10 rounded-2xl object-cover shadow-sm ring-1 ring-slate-200"
+          />
+          <span>旅圖書籤匣</span>
+        </h1>
         <p className="text-[11px] text-slate-400 uppercase tracking-[0.3em] font-medium">TRIPMARK DECK</p>
       </header>
 
