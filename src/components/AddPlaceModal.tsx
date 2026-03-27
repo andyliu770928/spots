@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
-import { Place, PlaceCategory } from '@/types'
+import { Place, PlaceCategory, PlaceStatus } from '@/types'
 import { detectSourcePlatform } from '@/lib/places'
 
 interface AddPlaceModalProps {
@@ -34,7 +34,7 @@ const defaultFormData = {
   notes: '',
   opening_hours: '',
   tags: [] as string[],
-  status: 'inbox' as const,
+  status: 'inbox' as PlaceStatus,
   rating: null as number | null,
   cover_image_url: '',
   source_platform: '',
