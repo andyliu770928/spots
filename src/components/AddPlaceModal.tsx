@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
 import { Place, PlaceCategory, PlaceStatus } from '@/types'
-import { detectSourcePlatform } from '@/lib/places'
+import { detectSourcePlatform, simplifyCategory } from '@/lib/places'
 
 interface AddPlaceModalProps {
   isOpen: boolean
@@ -51,7 +51,7 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave, 
       setFormData({
         title: initialPlace.title || '',
         source_url: initialPlace.source_url || '',
-        category: initialPlace.category || 'spot',
+        category: simplifyCategory(initialPlace.category) || 'spot',
         city: initialPlace.city || '',
         district: initialPlace.district || '',
         address: initialPlace.address || '',
@@ -177,13 +177,7 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave, 
                 <option value="spot">景點</option>
                 <option value="food">美食</option>
                 <option value="hotel">住宿</option>
-                <option value="idea">靈感</option>
-                <option value="hiking">登山</option>
-                <option value="dessert">甜點</option>
-                <option value="coffee">咖啡</option>
-                <option value="photography">攝影</option>
-                <option value="hidden_gem">私房點</option>
-                <option value="shop_visit">店訪</option>
+                <option value="idea">活動</option>
               </select>
             </div>
             <div className="space-y-1.5">

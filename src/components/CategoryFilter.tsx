@@ -3,13 +3,7 @@ import {
   Palmtree, 
   Utensils, 
   Hotel, 
-  Lightbulb, 
-  Mountain, 
-  IceCream, 
-  Camera, 
-  Ghost, 
-  ShoppingBag, 
-  Coffee 
+  Lightbulb
 } from 'lucide-react'
 
 interface CategoryFilterProps {
@@ -22,18 +16,12 @@ const categories = [
   { id: 'spot', label: '景點', icon: <Palmtree size={14} /> },
   { id: 'food', label: '美食', icon: <Utensils size={14} /> },
   { id: 'hotel', label: '住宿', icon: <Hotel size={14} /> },
-  { id: 'idea', label: '靈感', icon: <Lightbulb size={14} /> },
-  { id: 'hiking', label: '登山', icon: <Mountain size={14} /> },
-  { id: 'dessert', label: '甜點', icon: <IceCream size={14} /> },
-  { id: 'photography', label: '攝影', icon: <Camera size={14} /> },
-  { id: 'hidden_gem', label: '秘境', icon: <Ghost size={14} /> },
-  { id: 'shop_visit', label: '探店', icon: <ShoppingBag size={14} /> },
-  { id: 'coffee', label: '咖啡', icon: <Coffee size={14} /> },
+  { id: 'idea', label: '活動', icon: <Lightbulb size={14} /> },
 ]
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onSelectCategory }) => {
   return (
-    <div className="flex overflow-x-auto pb-4 gap-2 scrollbar-hide no-scrollbar">
+    <div className="flex flex-wrap gap-2">
       {categories.map((cat) => (
         <button
           key={cat.id}

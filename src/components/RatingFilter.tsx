@@ -1,5 +1,5 @@
 import React from 'react'
-import { Star } from 'lucide-react'
+import { ChevronDown, Star } from 'lucide-react'
 
 interface RatingFilterProps {
   selectedRating: string | null
@@ -7,7 +7,7 @@ interface RatingFilterProps {
 }
 
 const ratingOptions = [
-  { id: 'all', label: '全部' },
+  { id: 'all', label: '全部評分' },
   { id: 'unrated', label: '沒去過' },
   { id: '5', label: '5 分' },
   { id: '4', label: '4 分以上' },
@@ -18,21 +18,26 @@ const ratingOptions = [
 
 const RatingFilter: React.FC<RatingFilterProps> = ({ selectedRating, onSelectRating }) => {
   return (
-    <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide no-scrollbar">
-      {ratingOptions.map(option => (
-        <button
-          key={option.id}
-          onClick={() => onSelectRating(option.id === 'all' ? null : option.id)}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border shadow-sm ${
-            (selectedRating === option.id || (selectedRating === null && option.id === 'all'))
-              ? 'bg-amber-500 text-white border-amber-500'
-              : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'
-          }`}
-        >
-          <Star size={14} />
-          {option.label}
-        </button>
-      ))}
+    <div className="relative min-w-[150px]">
+      <Star
+        size={15}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none"
+      />
+      <ChevronDown
+        size={15}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+      />
+      <select
+        value={selectedRating ?? 'all'}
+        onChange={(e) => onSelectRating(e.target.value === 'all' ? null : e.target.value)}
+        className="w-full appearance-none rounded-full border border-slate-100 bg-white py-2 pl-9 pr-9 text-sm font-medium text-slate-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-100"
+      >
+        {ratingOptions.map(option => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

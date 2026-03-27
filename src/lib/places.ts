@@ -33,17 +33,25 @@ export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
   spot: '景點',
   food: '美食',
   hotel: '住宿',
-  idea: '靈感',
-  hiking: '登山',
-  dessert: '甜點',
-  photography: '攝影',
-  hidden_gem: '秘境',
-  shop_visit: '探店',
-  coffee: '咖啡',
+  idea: '活動',
+  hiking: '活動',
+  dessert: '美食',
+  photography: '景點',
+  hidden_gem: '景點',
+  shop_visit: '活動',
+  coffee: '美食',
+}
+
+export function simplifyCategory(category?: PlaceCategory | null): PlaceCategory {
+  if (!category) return 'spot'
+  if (category === 'dessert' || category === 'coffee') return 'food'
+  if (category === 'hiking' || category === 'shop_visit') return 'idea'
+  if (category === 'photography' || category === 'hidden_gem') return 'spot'
+  return category
 }
 
 export function getCategoryLabel(category: PlaceCategory): string {
-  return CATEGORY_LABELS[category] || category
+  return CATEGORY_LABELS[simplifyCategory(category)] || category
 }
 
 export function normalizeRating(value: unknown): number | null | undefined {
@@ -120,11 +128,11 @@ export function inferCategory(input: {
     .toLowerCase()
 
   if (/hotel|住宿|旅館|民宿/.test(haystack)) return 'hotel'
-  if (/coffee|咖啡|cafe|café/.test(haystack)) return 'coffee'
-  if (/dessert|甜點|蛋糕|冰品/.test(haystack)) return 'dessert'
-  if (/hiking|trail|登山|步道/.test(haystack)) return 'hiking'
+  if (/coffee|咖啡|cafe|café/.test(haystack)) return 'food'
+  if (/dessert|甜點|蛋糕|冰品/.test(haystack)) return 'food'
+  if (/hiking|trail|登山|步道/.test(haystack)) return 'idea'
   if (/food|restaurant|餐廳|美食|小吃|料理/.test(haystack)) return 'food'
-  if (/photo|攝影|拍照|取景/.test(haystack)) return 'photography'
+  if (/photo|攝影|拍照|取景|活動|展覽|市集|體驗/.test(haystack)) return 'idea'
 
   return 'spot'
 }
@@ -173,9 +181,11 @@ export function buildMissingFields(place: Partial<Place>): string[] {
 export function normalizePlaceInput(input: Partial<Place> & Record<string, unknown>): Partial<Place> {
   const source_url = normalizeText(input.source_url)
   const source_platform = normalizeText(input.source_platform) || detectSourcePlatform(source_url)
-  const category = ALLOWED_CATEGORIES.includes(input.category as PlaceCategory)
-    ? (input.category as PlaceCategory)
-    : 'spot'
+  const category = simplifyCategory(
+    ALLOWED_CATEGORIES.includes(input.category as PlaceCategory)
+      ? (input.category as PlaceCategory)
+      : 'spot'
+  )
   const rating = normalizeRating(input.rating)
   const status = ALLOWED_STATUSES.includes(input.status as PlaceStatus)
     ? (input.status as PlaceStatus)

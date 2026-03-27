@@ -22,34 +22,40 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
   return (
     <div 
       onClick={() => onClick?.(place.id)}
-      className="bg-white rounded-2xl shadow-sm border border-orange-50 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow duration-300 cursor-pointer group"
+      className="relative bg-white rounded-2xl shadow-sm border border-orange-50 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow duration-300 cursor-pointer group"
     >
-      {/* Cover Image */}
       {place.cover_image_url && (
-        <div className="relative aspect-video overflow-hidden">
-          <img 
-            src={place.cover_image_url} 
-            alt={place.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        <>
+          <div
+            className="absolute inset-0 bg-center bg-cover opacity-[0.12] transition-opacity duration-300 group-hover:opacity-[0.18]"
+            style={{ backgroundImage: `url(${place.cover_image_url})` }}
           />
-        </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/92 via-white/88 to-[#FDFCF8]/94" />
+        </>
       )}
 
-      <div className="p-5 flex-grow flex flex-col space-y-4">
-        {/* Title and Category */}
+      <div className="relative p-5 flex-grow flex flex-col space-y-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2 leading-tight group-hover:text-orange-500 transition-colors">
-            {place.title}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-              {getCategoryLabel(place.category)}
-            </span>
-            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3 className="text-xl font-bold text-slate-800 leading-tight group-hover:text-orange-500 transition-colors">
+              {place.title}
+            </h3>
+            <span className={`shrink-0 px-3 py-1 text-xs font-semibold rounded-full ${
               place.rating ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
             }`}>
               {place.rating ? `${place.rating} 分` : '沒去過'}
             </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+              {getCategoryLabel(place.category)}
+            </span>
+            {place.source_platform && (
+              <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-semibold rounded-full uppercase">
+                {place.source_platform}
+              </span>
+            )}
           </div>
         </div>
 
@@ -87,10 +93,12 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
             </div>
           )}
 
-          <div className="flex gap-2">
-            <Star size={16} className="text-amber-400 mt-1 flex-shrink-0" />
-            <p>{getRatingLabel(place.rating)}</p>
-          </div>
+          {place.rating && (
+            <div className="flex gap-2">
+              <Star size={16} className="text-amber-400 mt-1 flex-shrink-0" />
+              <p>{getRatingLabel(place.rating)}</p>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

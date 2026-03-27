@@ -10,6 +10,7 @@ import RatingFilter from '@/components/RatingFilter'
 import AddPlaceModal from '@/components/AddPlaceModal'
 import { Place } from '@/types'
 import { api } from '@/lib/api'
+import { simplifyCategory } from '@/lib/places'
 
 export default function Home() {
   const router = useRouter()
@@ -81,7 +82,7 @@ export default function Home() {
       place.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
       place.summary?.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesCategory = selectedCategory ? place.category === selectedCategory : true
+    const matchesCategory = selectedCategory ? simplifyCategory(place.category) === selectedCategory : true
     const matchesRating = !selectedRating
       ? true
       : selectedRating === 'unrated'
@@ -126,15 +127,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="px-6 mb-8">
+      <div className="px-6 mb-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <CategoryFilter 
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
-      </div>
-
-      <div className="px-6 mb-8">
         <RatingFilter
           selectedRating={selectedRating}
           onSelectRating={setSelectedRating}
