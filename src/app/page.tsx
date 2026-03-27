@@ -104,7 +104,7 @@ export default function Home() {
         </Link>
         <h1 className="flex items-center justify-center gap-3 text-4xl font-black tracking-tighter text-slate-800">
           <img
-            src="/frog.avif"
+            src="/frog-clean.png"
             alt="Frog"
             className="h-14 w-14 object-contain"
           />

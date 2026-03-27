@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: "旅圖書籤匣",
   description: "收藏景點、美食、住宿與活動的旅遊書籤匣",
   icons: {
-    icon: "/frog.avif",
-    shortcut: "/frog.avif",
-    apple: "/frog.avif",
+    icon: "/frog-clean.png",
+    shortcut: "/frog-clean.png",
+    apple: "/frog-clean.png",
   },
 };
 
