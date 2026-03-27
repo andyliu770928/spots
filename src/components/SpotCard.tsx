@@ -27,10 +27,10 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
       {place.cover_image_url && (
         <>
           <div
-            className="absolute inset-0 bg-center bg-cover opacity-[0.28] transition-opacity duration-300 group-hover:opacity-[0.36]"
+            className="absolute inset-0 bg-center bg-cover opacity-[0.34] transition-opacity duration-300 group-hover:opacity-[0.42]"
             style={{ backgroundImage: `url(${place.cover_image_url})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-white/76 via-white/74 to-[#FDFCF8]/82" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-white/68 to-[#FDFCF8]/78" />
         </>
       )}
 

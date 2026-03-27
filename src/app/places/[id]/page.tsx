@@ -12,18 +12,18 @@ import {
   Share2,
   Loader2,
   MapPinOff,
-  Star,
   Clock
 } from 'lucide-react'
 import { Place } from '@/types'
 import { api } from '@/lib/api'
-import { getCategoryLabel, getRatingLabel } from '@/lib/places'
+import { getCategoryLabel } from '@/lib/places'
 
 export default function PlaceDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [place, setPlace] = useState<Place | null>(null)
   const [loading, setLoading] = useState(true)
+  const [ratingSaving, setRatingSaving] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -40,6 +40,24 @@ export default function PlaceDetailPage() {
       console.error('Failed to fetch place detail:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRatingChange = async (rating: number | null) => {
+    if (!place || ratingSaving) return
+
+    setRatingSaving(true)
+    try {
+      const updatedPlace = await api.updatePlace(place.id, {
+        rating,
+        status: rating ? 'visited' : 'inbox',
+      })
+      setPlace(updatedPlace)
+    } catch (err) {
+      console.error('Failed to update rating:', err)
+      alert('更新評分失敗，請稍後再試。')
+    } finally {
+      setRatingSaving(false)
     }
   }
 
@@ -149,11 +167,36 @@ export default function PlaceDetailPage() {
             </a>
           )}
           <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-3 text-amber-500">
-              <Star size={18} />
-              <span className="text-xs font-bold">{place.rating || '-'}</span>
+            <div className="flex items-center gap-1 rounded-full bg-amber-50 p-1 text-amber-500">
+              <button
+                type="button"
+                onClick={() => handleRatingChange(null)}
+                disabled={ratingSaving}
+                className={`rounded-full px-2 py-2 text-[10px] font-bold transition-all ${
+                  !place.rating ? 'bg-slate-700 text-white' : 'text-slate-500 hover:bg-white'
+                } ${ratingSaving ? 'opacity-60' : ''}`}
+              >
+                未
+              </button>
+              {ratingButtons.map(value => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => handleRatingChange(value)}
+                  disabled={ratingSaving}
+                  className={`rounded-full px-2 py-2 text-[10px] font-bold transition-all ${
+                    place.rating === value
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-white/70 text-amber-700 hover:bg-white'
+                  } ${ratingSaving ? 'opacity-60' : ''}`}
+                >
+                  {value}
+                </button>
+              ))}
             </div>
-            <span className="text-[10px] font-bold text-slate-500">評分</span>
+            <span className="text-[10px] font-bold text-slate-500">
+              {ratingSaving ? '儲存中...' : '評分'}
+            </span>
           </div>
         </div>
 
@@ -204,38 +247,6 @@ export default function PlaceDetailPage() {
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">地址</p>
                   <p className="text-sm text-slate-600">{place.address || '未填寫地址'}</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
-                  <Star size={16} className="text-slate-400" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">評分</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                        !place.rating ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      沒去過
-                    </button>
-                    {ratingButtons.map(value => (
-                      <button
-                        key={value}
-                        type="button"
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                          place.rating === value
-                            ? 'bg-amber-500 text-white'
-                            : 'bg-amber-50 text-amber-700'
-                        }`}
-                      >
-                        {value} 分
-                      </button>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">{getRatingLabel(place.rating)}</p>
                 </div>
               </div>
               <div className="flex gap-4">
