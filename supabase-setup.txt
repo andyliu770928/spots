@@ -1,0 +1,77 @@
+-- 請複製以下所有內容，並貼到 Supabase 的 SQL Editor 中執行。
+
+-- 1. 啟用 UUID 擴充
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 2. 建立 places (景點/美食) 表格
+CREATE TABLE IF NOT EXISTS places (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  category TEXT DEFAULT 'spot',
+  city TEXT,
+  district TEXT,
+  address TEXT,
+  lat DECIMAL,
+  lng DECIMAL,
+  source_url TEXT,
+  source_platform TEXT,
+  summary TEXT,
+  why_go TEXT,
+  tags TEXT[],
+  status TEXT DEFAULT 'inbox',
+  notes TEXT,
+  cover_image_url TEXT,
+  user_id UUID DEFAULT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. 建立 trips (行程) 表格
+CREATE TABLE IF NOT EXISTS trips (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  trip_date DATE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. 建立 trip_items (行程詳細地點) 表格
+CREATE TABLE IF NOT EXISTS trip_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,
+  place_id UUID REFERENCES places(id),
+  sort_order INT DEFAULT 0,
+  note TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. 確保資料可以存取 (暫時關閉 RLS 以便 MVP 測試)
+-- 警告：在正式生產環境中，建議設定細膩的 RLS 政策
+ALTER TABLE places DISABLE ROW LEVEL SECURITY;
+ALTER TABLE trips DISABLE ROW LEVEL SECURITY;
+ALTER TABLE trip_items DISABLE ROW LEVEL SECURITY;
+
+-- 6. 插入一筆真正的測試資料
+INSERT INTO places (
+  title, 
+  category, 
+  city, 
+  district, 
+  address, 
+  summary, 
+  tags, 
+  status, 
+  cover_image_url,
+  source_url
+) VALUES (
+  '新店 - 超人鱸魚湯 (米其林必比登)', 
+  'food', 
+  '新北市', 
+  '新店區', 
+  '新北市新店區北新路一段349號', 
+  '每日現煮現熬魚湯、肉質肥美彈牙、小菜茄子份量大、連滷肉飯評價都很高。', 
+  ARRAY['新店', '鱸魚湯', '米其林', '在地美食'], 
+  'shortlisted', 
+  'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1471&auto=format&fit=crop',
+  'https://www.google.com/maps/search/?api=1&query=新店超人鱸魚湯'
+);
