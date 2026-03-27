@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedRating, setSelectedRating] = useState<string | null>(null)
   const [places, setPlaces] = useState<Place[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingPlace, setEditingPlace] = useState<Place | null>(null)
   const [loading, setLoading] = useState(true)
 
   // Fetch data on load
@@ -39,13 +40,29 @@ export default function Home() {
 
   const handleAddPlace = async (newPlaceData: Partial<Place>) => {
     try {
-      const savedPlace = await api.addPlace(newPlaceData)
-      setPlaces([savedPlace, ...places])
+      if (editingPlace) {
+        const savedPlace = await api.updatePlace(editingPlace.id, newPlaceData)
+        setPlaces(places.map(place => (place.id === editingPlace.id ? savedPlace : place)))
+      } else {
+        const savedPlace = await api.addPlace(newPlaceData)
+        setPlaces([savedPlace, ...places])
+      }
+      setEditingPlace(null)
       setIsModalOpen(false)
     } catch (err) {
-      console.error('Failed to add place:', err)
-      alert('新增失敗，請檢查 Supabase 連線或環境變數設定。')
+      console.error('Failed to save place:', err)
+      alert('儲存失敗，請檢查 Supabase 連線或環境變數設定。')
     }
+  }
+
+  const handleEditPlace = (place: Place) => {
+    setEditingPlace(place)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setEditingPlace(null)
   }
 
   const handleDeletePlace = async (id: string) => {
@@ -138,7 +155,7 @@ export default function Home() {
                 key={place.id} 
                 place={place} 
                 onClick={(id) => router.push(`/places/${id}`)}
-                onEdit={(p) => console.log('Edit', p)}
+                onEdit={handleEditPlace}
                 onDelete={handleDeletePlace}
               />
             ))}
@@ -153,7 +170,10 @@ export default function Home() {
 
       {/* Add Button (Floating) */}
       <button 
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setEditingPlace(null)
+          setIsModalOpen(true)
+        }}
         data-testid="open-add-place-modal"
         className="fixed bottom-8 right-8 w-14 h-14 bg-slate-800 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40"
       >
@@ -163,8 +183,9 @@ export default function Home() {
       {/* Modal */}
       <AddPlaceModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={handleCloseModal}
         onSave={handleAddPlace}
+        initialPlace={editingPlace}
       />
     </main>
   )

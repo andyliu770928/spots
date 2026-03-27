@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
 import { Place, PlaceCategory } from '@/types'
 import { detectSourcePlatform } from '@/lib/places'
@@ -9,6 +9,7 @@ interface AddPlaceModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (place: Partial<Place>) => void
+  initialPlace?: Place | null
 }
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -21,25 +22,54 @@ const PLATFORM_LABELS: Record<string, string> = {
   web: 'Web'
 }
 
-const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }) => {
+const defaultFormData = {
+  title: '',
+  source_url: '',
+  category: 'spot' as PlaceCategory,
+  city: '',
+  district: '',
+  address: '',
+  summary: '',
+  why_go: '',
+  notes: '',
+  opening_hours: '',
+  tags: [] as string[],
+  status: 'inbox' as const,
+  rating: null as number | null,
+  cover_image_url: '',
+  source_platform: '',
+}
+
+const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave, initialPlace }) => {
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
-    source_url: '',
-    category: 'spot' as PlaceCategory,
-    city: '',
-    district: '',
-    address: '',
-    summary: '',
-    why_go: '',
-    notes: '',
-    opening_hours: '',
-    tags: [] as string[],
-    status: 'inbox' as const,
-    rating: null as number | null,
-    cover_image_url: '',
-    source_platform: ''
-  })
+  const [formData, setFormData] = useState(defaultFormData)
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (initialPlace) {
+      setFormData({
+        title: initialPlace.title || '',
+        source_url: initialPlace.source_url || '',
+        category: initialPlace.category || 'spot',
+        city: initialPlace.city || '',
+        district: initialPlace.district || '',
+        address: initialPlace.address || '',
+        summary: initialPlace.summary || '',
+        why_go: initialPlace.why_go || '',
+        notes: initialPlace.notes || '',
+        opening_hours: initialPlace.opening_hours || '',
+        tags: initialPlace.tags || [],
+        status: initialPlace.status || 'inbox',
+        rating: initialPlace.rating ?? null,
+        cover_image_url: initialPlace.cover_image_url || '',
+        source_platform: initialPlace.source_platform || detectSourcePlatform(initialPlace.source_url),
+      })
+      return
+    }
+
+    setFormData(defaultFormData)
+  }, [initialPlace, isOpen])
 
   const tagsInputValue = formData.tags.join(', ')
 
@@ -80,7 +110,7 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="sticky top-0 bg-white px-6 py-4 border-b border-slate-50 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-slate-700">新增收藏</h2>
+          <h2 className="text-xl font-bold text-slate-700">{initialPlace ? '編輯收藏' : '新增收藏'}</h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
             <X size={20} className="text-slate-400" />
           </button>
@@ -317,7 +347,7 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
             data-testid="place-save"
             className="w-full py-3.5 bg-slate-800 text-white font-bold rounded-2xl hover:bg-slate-700 active:scale-[0.98] transition-all shadow-lg"
           >
-            存入收藏匣
+            {initialPlace ? '儲存變更' : '存入收藏匣'}
           </button>
         </form>
       </div>
