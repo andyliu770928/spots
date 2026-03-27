@@ -20,6 +20,15 @@ const ALLOWED_STATUSES: PlaceStatus[] = [
   'archived',
 ]
 
+export interface ResolvedPlaceDraft extends Partial<Place> {
+  confidence: {
+    title: number
+    address: number
+    category: number
+  }
+  missing_fields: string[]
+}
+
 export function detectSourcePlatform(url?: string): string {
   const normalized = (url || '').toLowerCase()
 
@@ -60,6 +69,72 @@ function normalizeTags(value: unknown): string[] | undefined {
   }
 
   return undefined
+}
+
+export function inferCategory(input: {
+  category?: unknown
+  title?: string
+  summary?: string
+  tags?: string[]
+}): PlaceCategory {
+  if (ALLOWED_CATEGORIES.includes(input.category as PlaceCategory)) {
+    return input.category as PlaceCategory
+  }
+
+  const haystack = [input.title, input.summary, ...(input.tags || [])]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  if (/hotel|住宿|旅館|民宿/.test(haystack)) return 'hotel'
+  if (/coffee|咖啡|cafe|café/.test(haystack)) return 'coffee'
+  if (/dessert|甜點|蛋糕|冰品/.test(haystack)) return 'dessert'
+  if (/hiking|trail|登山|步道/.test(haystack)) return 'hiking'
+  if (/food|restaurant|餐廳|美食|小吃|料理/.test(haystack)) return 'food'
+  if (/photo|攝影|拍照|取景/.test(haystack)) return 'photography'
+
+  return 'spot'
+}
+
+export function extractTags(...parts: Array<string | undefined>): string[] {
+  const tags = new Set<string>()
+
+  for (const part of parts) {
+    if (!part) continue
+
+    for (const match of part.matchAll(/#([\p{L}\p{N}_-]+)/gu)) {
+      const value = match[1]?.trim()
+      if (value) tags.add(value)
+    }
+  }
+
+  return Array.from(tags).slice(0, 12)
+}
+
+export function extractCityDistrict(text: string): {
+  city?: string
+  district?: string
+} {
+  const normalized = text.replace(/\s+/g, ' ')
+  const cityMatch = normalized.match(/(台北市|新北市|桃園市|台中市|台南市|高雄市|基隆市|新竹市|嘉義市|新竹縣|苗栗縣|彰化縣|南投縣|雲林縣|嘉義縣|屏東縣|宜蘭縣|花蓮縣|台東縣|澎湖縣|金門縣|連江縣)/)
+  const districtMatch = normalized.match(/([^\s,，]+?(區|鄉|鎮|市))/)
+
+  return {
+    city: cityMatch?.[1],
+    district: districtMatch?.[1],
+  }
+}
+
+export function buildMissingFields(place: Partial<Place>): string[] {
+  const missing: string[] = []
+
+  if (!place.title) missing.push('title')
+  if (!place.address) missing.push('address')
+  if (!place.city) missing.push('city')
+  if (!place.district) missing.push('district')
+  if (!place.summary) missing.push('summary')
+
+  return missing
 }
 
 export function normalizePlaceInput(input: Partial<Place> & Record<string, unknown>): Partial<Place> {
