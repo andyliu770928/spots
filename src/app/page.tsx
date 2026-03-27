@@ -120,13 +120,13 @@ export default function Home() {
           <input 
             type="text" 
             placeholder="搜尋景點、美食..." 
-            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-100 focus:border-slate-200 transition-all text-sm"
+            className="h-[54px] w-full rounded-2xl border border-slate-100 bg-white pl-12 pr-4 text-sm shadow-sm transition-all focus:border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-100"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         
-        <div className="px-5 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm text-center flex flex-col justify-center min-w-[90px]">
+        <div className="flex h-[54px] min-w-[90px] flex-col justify-center rounded-2xl border border-slate-100 bg-white px-5 text-center shadow-sm">
           <span className="block text-2xl font-black text-slate-800 leading-none">
             {loading ? '-' : filteredPlaces.length}
           </span>
