@@ -140,6 +140,7 @@ export default function Home() {
       {/* Add Button (Floating) */}
       <button 
         onClick={() => setIsModalOpen(true)}
+        data-testid="open-add-place-modal"
         className="fixed bottom-8 right-8 w-14 h-14 bg-slate-800 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40"
       >
         <Plus size={28} />

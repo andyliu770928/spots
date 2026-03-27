@@ -2,12 +2,36 @@
 
 import React, { useState } from 'react'
 import { X, Link as LinkIcon, Loader2 } from 'lucide-react'
-import { PlaceCategory, PlaceStatus } from '@/types'
+import { Place, PlaceCategory, PlaceStatus } from '@/types'
 
 interface AddPlaceModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (place: any) => void
+  onSave: (place: Partial<Place>) => void
+}
+
+const PLATFORM_LABELS: Record<string, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  xiaohongshu: '小紅書',
+  google_maps: 'Google Maps',
+  web: 'Web'
+}
+
+function detectSourcePlatform(url: string): string {
+  const normalized = url.toLowerCase()
+
+  if (normalized.includes('instagram.com') || normalized.includes('instagr.am')) return 'instagram'
+  if (normalized.includes('facebook.com') || normalized.includes('fb.watch')) return 'facebook'
+  if (normalized.includes('youtube.com') || normalized.includes('youtu.be')) return 'youtube'
+  if (normalized.includes('tiktok.com')) return 'tiktok'
+  if (normalized.includes('xiaohongshu.com') || normalized.includes('xhslink.com')) return 'xiaohongshu'
+  if (normalized.includes('maps.google.') || normalized.includes('google.com/maps')) return 'google_maps'
+  if (!normalized) return ''
+
+  return 'web'
 }
 
 const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }) => {
@@ -21,10 +45,18 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
     address: '',
     summary: '',
     why_go: '',
+    notes: '',
     tags: [] as string[],
     status: 'inbox' as PlaceStatus,
-    cover_image_url: ''
+    cover_image_url: '',
+    source_platform: ''
   })
+
+  const tagsInputValue = formData.tags.join(', ')
+
+  const updateFormData = (updates: Partial<typeof formData>) => {
+    setFormData(prev => ({ ...prev, ...updates }))
+  }
 
   const handleLinkPreview = async () => {
     if (!formData.source_url) return
@@ -74,14 +106,22 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
                 <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input 
                   type="url" 
+                  data-testid="place-source-url"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
                   placeholder="貼上連結 (IG, FB, 網頁...)"
                   value={formData.source_url}
-                  onChange={(e) => setFormData({...formData, source_url: e.target.value})}
+                  onChange={(e) => {
+                    const source_url = e.target.value
+                    updateFormData({
+                      source_url,
+                      source_platform: detectSourcePlatform(source_url)
+                    })
+                  }}
                 />
               </div>
               <button 
                 type="button"
+                data-testid="place-fetch-preview"
                 onClick={handleLinkPreview}
                 disabled={loading || !formData.source_url}
                 className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-xl hover:bg-slate-700 disabled:opacity-50 transition-all flex items-center gap-2"
@@ -97,10 +137,11 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
             <input 
               required
               type="text" 
+              data-testid="place-title"
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
               placeholder="地點名稱"
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) => updateFormData({ title: e.target.value })}
             />
           </div>
 
@@ -109,25 +150,31 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">分類</label>
               <select 
+                data-testid="place-category"
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm appearance-none"
                 value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value as PlaceCategory})}
+                onChange={(e) => updateFormData({ category: e.target.value as PlaceCategory })}
               >
                 <option value="spot">景點</option>
                 <option value="food">美食</option>
                 <option value="hotel">住宿</option>
+                <option value="idea">靈感</option>
                 <option value="hiking">登山</option>
                 <option value="dessert">甜點</option>
                 <option value="coffee">咖啡</option>
+                <option value="photography">攝影</option>
+                <option value="hidden_gem">私房點</option>
+                <option value="shop_visit">店訪</option>
               </select>
             </div>
             {/* Status */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">狀態</label>
               <select 
+                data-testid="place-status"
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm appearance-none"
                 value={formData.status}
-                onChange={(e) => setFormData({...formData, status: e.target.value as PlaceStatus})}
+                onChange={(e) => updateFormData({ status: e.target.value as PlaceStatus })}
               >
                 <option value="inbox">Inbox</option>
                 <option value="shortlisted">有興趣</option>
@@ -137,15 +184,41 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">城市</label>
+              <input
+                type="text"
+                data-testid="place-city"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+                placeholder="例如：台北"
+                value={formData.city}
+                onChange={(e) => updateFormData({ city: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">行政區</label>
+              <input
+                type="text"
+                data-testid="place-district"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+                placeholder="例如：中西區"
+                value={formData.district}
+                onChange={(e) => updateFormData({ district: e.target.value })}
+              />
+            </div>
+          </div>
+
           {/* Address */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">地址</label>
             <input 
               type="text" 
+              data-testid="place-address"
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
               placeholder="完整地址"
               value={formData.address}
-              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              onChange={(e) => updateFormData({ address: e.target.value })}
             />
           </div>
 
@@ -154,16 +227,86 @@ const AddPlaceModal: React.FC<AddPlaceModalProps> = ({ isOpen, onClose, onSave }
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">簡介</label>
             <textarea 
               rows={3}
+              data-testid="place-summary"
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm resize-none"
               placeholder="這地方有什麼特色？"
               value={formData.summary}
-              onChange={(e) => setFormData({...formData, summary: e.target.value})}
+              onChange={(e) => updateFormData({ summary: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">為什麼想去</label>
+            <textarea
+              rows={2}
+              data-testid="place-why-go"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm resize-none"
+              placeholder="收藏這個點的原因"
+              value={formData.why_go}
+              onChange={(e) => updateFormData({ why_go: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">標籤</label>
+            <input
+              type="text"
+              data-testid="place-tags"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+              placeholder="用逗號分隔，例如：夜景, 約會, 台南"
+              value={tagsInputValue}
+              onChange={(e) =>
+                updateFormData({
+                  tags: e.target.value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(Boolean)
+                })
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">來源平台</label>
+              <input
+                type="text"
+                data-testid="place-source-platform"
+                className="w-full px-4 py-2.5 bg-slate-100 border border-slate-100 rounded-xl text-sm text-slate-500"
+                value={PLATFORM_LABELS[formData.source_platform] || ''}
+                placeholder="會依連結自動判斷"
+                readOnly
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">封面圖片</label>
+              <input
+                type="url"
+                data-testid="place-cover-image-url"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+                placeholder="自動抓取或手動貼上"
+                value={formData.cover_image_url}
+                onChange={(e) => updateFormData({ cover_image_url: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">備註</label>
+            <textarea
+              rows={3}
+              data-testid="place-notes"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm resize-none"
+              placeholder="補充資訊、待查資料、交通提醒"
+              value={formData.notes}
+              onChange={(e) => updateFormData({ notes: e.target.value })}
             />
           </div>
 
           {/* Save Button */}
           <button 
             type="submit"
+            data-testid="place-save"
             className="w-full py-3.5 bg-slate-800 text-white font-bold rounded-2xl hover:bg-slate-700 active:scale-[0.98] transition-all shadow-lg"
           >
             存入收藏匣
