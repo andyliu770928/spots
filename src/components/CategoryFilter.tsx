@@ -26,7 +26,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onSel
         <button
           key={cat.id}
           onClick={() => onSelectCategory(cat.id === 'all' ? null : cat.id)}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border shadow-sm ${
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border shadow-sm md:px-4 md:py-2 md:text-sm ${
             (selectedCategory === cat.id || (selectedCategory === null && cat.id === 'all'))
               ? 'bg-slate-600 text-white border-slate-600'
               : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'

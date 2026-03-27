@@ -134,15 +134,21 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="px-6 mb-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <CategoryFilter 
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-        <RatingFilter
-          selectedRating={selectedRating}
-          onSelectRating={setSelectedRating}
-        />
+      <div className="px-6 mb-8 flex flex-col gap-2 sm:gap-3">
+        <div className="flex items-start gap-2 sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <CategoryFilter 
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          </div>
+          <div className="w-[132px] shrink-0 sm:w-auto">
+            <RatingFilter
+              selectedRating={selectedRating}
+              onSelectRating={setSelectedRating}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Grid */}
