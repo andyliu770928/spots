@@ -103,6 +103,14 @@ async function fetchPageMetadata(targetUrl: string): Promise<LinkPreviewResponse
   }
 }
 
+async function tryFetchPageMetadata(targetUrl: string): Promise<LinkPreviewResponse> {
+  try {
+    return await fetchPageMetadata(targetUrl)
+  } catch {
+    return {}
+  }
+}
+
 function buildResolvedPlaceDraft(place: Record<string, unknown>): ResolvedPlaceDraft {
   const normalized = normalizePlaceInput(place)
 
@@ -186,7 +194,15 @@ export async function resolvePlaceInput(input: CaptureInput): Promise<ResolvedPl
       })
     }
 
-    const preview = await fetchPageMetadata(rawUrl)
+    const hasExplicitContent =
+      Boolean(explicitTitle) ||
+      Boolean(explicitSummary) ||
+      Boolean(explicitAddress) ||
+      Boolean(cleanText(input.cover_image_url)) ||
+      Boolean(rawText)
+    const preview = hasExplicitContent
+      ? await tryFetchPageMetadata(rawUrl)
+      : await fetchPageMetadata(rawUrl)
     const combinedText = [rawText, explicitSummary, preview.description].filter(Boolean).join(' ')
     const tags = extractTags(
       rawText,
