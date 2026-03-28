@@ -12,7 +12,6 @@ import {
   Share2,
   Loader2,
   MapPinOff,
-  Clock,
   Star
 } from 'lucide-react'
 import { Place } from '@/types'
@@ -258,15 +257,6 @@ export default function PlaceDetailPage() {
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">地址</p>
                   <p className="text-sm text-slate-600">{place.address || '未填寫地址'}</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
-                  <Clock size={16} className="text-slate-400" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">營業時間</p>
-                  <p className="text-sm text-slate-600 whitespace-pre-wrap">{place.opening_hours || '未填寫營業時間'}</p>
                 </div>
               </div>
               {(place.notes || place.source_platform) && (

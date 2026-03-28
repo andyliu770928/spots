@@ -6,7 +6,6 @@ import {
   Edit2, 
   Trash2, 
   Sparkles, 
-  Clock,
   Star
 } from 'lucide-react'
 import { getCategoryLabel, getRatingLabel } from '@/lib/places'
@@ -83,13 +82,6 @@ const SpotCard: React.FC<SpotCardProps> = ({ place, onEdit, onDelete, onClick })
             <div className="flex gap-2">
               <MapPin size={16} className="text-red-400 mt-1 flex-shrink-0" />
               <p className="line-clamp-1">{place.address}</p>
-            </div>
-          )}
-
-          {place.opening_hours && (
-            <div className="flex gap-2">
-              <Clock size={16} className="text-amber-400 mt-1 flex-shrink-0" />
-              <p className="line-clamp-1">{place.opening_hours}</p>
             </div>
           )}
 
