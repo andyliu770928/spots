@@ -15,7 +15,7 @@ import {
   Star
 } from 'lucide-react'
 import { Place } from '@/types'
-import { api } from '@/lib/api'
+import { placesApi } from '@/lib/places-api'
 import { getCategoryLabel } from '@/lib/places'
 
 export default function PlaceDetailPage() {
@@ -35,7 +35,7 @@ export default function PlaceDetailPage() {
   const fetchPlaceDetail = async (id: string) => {
     setLoading(true)
     try {
-      const data = await api.getPlace(id)
+      const data = await placesApi.getPlace(id)
       setPlace(data)
     } catch (err) {
       console.error('Failed to fetch place detail:', err)
@@ -49,7 +49,7 @@ export default function PlaceDetailPage() {
 
     setRatingSaving(true)
     try {
-      const updatedPlace = await api.updatePlace(place.id, {
+      const updatedPlace = await placesApi.updatePlace(place.id, {
         rating,
         status: rating ? 'visited' : 'inbox',
       })
@@ -81,7 +81,7 @@ export default function PlaceDetailPage() {
     )
   }
 
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || place.title)}`
+  const googleMapsUrl = `https://www.google.com/maps/search/?placesApi=1&query=${encodeURIComponent(place.address || place.title)}`
   const ratingButtons = [1, 2, 3, 4, 5]
 
   return (
