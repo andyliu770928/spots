@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import { createClient } from '@supabase/supabase-js'
+import { getDb } from '@/lib/db'
 import { Place } from '@/types'
 import {
   buildMissingFields,
@@ -33,7 +33,6 @@ function buildUserAgent() {
 
 function absoluteUrl(baseUrl: string, value?: string): string | undefined {
   if (!value) return undefined
-
   try {
     return new URL(value, baseUrl).toString()
   } catch {
@@ -43,7 +42,6 @@ function absoluteUrl(baseUrl: string, value?: string): string | undefined {
 
 export function cleanText(value?: string): string | undefined {
   if (!value) return undefined
-
   const cleaned = value.replace(/\s+/g, ' ').trim()
   return cleaned || undefined
 }
@@ -55,9 +53,7 @@ function parseGoogleMaps(url: URL): Partial<Place> {
       url.searchParams.get('destination') ||
       ''
   )
-
   const locationBits = extractCityDistrict(query || '')
-
   return {
     title: query?.split(',')[0]?.trim() || query,
     source_url: url.toString(),
@@ -75,10 +71,8 @@ async function fetchPageMetadata(targetUrl: string): Promise<LinkPreviewResponse
     headers: { 'User-Agent': buildUserAgent() },
     timeout: 8000,
   })
-
   const html = typeof response.data === 'string' ? response.data : ''
   const $ = cheerio.load(html)
-
   const title = cleanText(
     $('meta[property="og:title"]').attr('content') ||
       $('meta[name="twitter:title"]').attr('content') ||
@@ -94,7 +88,6 @@ async function fetchPageMetadata(targetUrl: string): Promise<LinkPreviewResponse
     $('meta[property="og:image"]').attr('content') ||
       $('meta[name="twitter:image"]').attr('content')
   )
-
   return {
     title,
     description,
@@ -113,7 +106,6 @@ async function tryFetchPageMetadata(targetUrl: string): Promise<LinkPreviewRespo
 
 function buildResolvedPlaceDraft(place: Record<string, unknown>): ResolvedPlaceDraft {
   const normalized = normalizePlaceInput(place)
-
   return {
     ...normalized,
     confidence: {
@@ -135,11 +127,9 @@ export function getIngestSecret(request: Request): string {
 
 export function assertAuthorized(request: Request) {
   const expectedSecret = process.env.SPOTS_INGEST_SECRET
-
   if (!expectedSecret) {
     throw new Error('SPOTS_INGEST_SECRET is not configured')
   }
-
   const providedSecret = getIngestSecret(request)
   if (providedSecret !== expectedSecret) {
     const error = new Error('Unauthorized')
@@ -148,18 +138,7 @@ export function assertAuthorized(request: Request) {
   }
 }
 
-export function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!url || !key) {
-    throw new Error('Supabase environment variables are missing')
-  }
-
-  return createClient(url, key)
-}
+export { getDb } from '@/lib/db'
 
 export async function resolvePlaceInput(input: CaptureInput): Promise<ResolvedPlaceDraft> {
   const rawUrl = cleanText(input.url || input.source_url)
