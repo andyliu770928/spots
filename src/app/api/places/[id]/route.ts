@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { assertAuthorized } from '@/lib/places-server'
-import { getDb } from '@/lib/db'
+import { assertAuthorized, getSupabaseClient } from '@/lib/places-server'
 
 export const runtime = 'nodejs'
 
@@ -23,10 +22,14 @@ export async function GET(_request: Request, context: RouteContext) {
       return NextResponse.json({ error: 'Missing id' }, { status: 400 })
     }
 
-    const client = getDb()
-    const [data] = await client`SELECT * FROM places WHERE id = ${id}`
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('places')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-    if (!data) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Place not found' }, { status: 404 })
     }
 
@@ -61,22 +64,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: 'No updatable fields provided' }, { status: 400 })
     }
 
-    const client = getDb()
-    const setParts: string[] = []
-    const values: unknown[] = []
-    let idx = 1
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('places')
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single()
 
-    for (const [key, value] of Object.entries(patch)) {
-      setParts.push(`${key} = $${idx}`)
-      values.push(value)
-      idx++
-    }
-
-    const setClause = setParts.join(', ')
-    const query = `UPDATE places SET ${setClause} WHERE id = $${idx} RETURNING *`
-    const [data] = await client.unsafe(query, [...values, id] as (string | number | boolean | null | Date)[])
-
-    if (!data) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Place not found or update failed' }, { status: 404 })
     }
 

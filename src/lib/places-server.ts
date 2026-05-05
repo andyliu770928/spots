@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import { getDb } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
 import { Place } from '@/types'
 import {
   buildMissingFields,
@@ -148,7 +148,18 @@ export function assertAuthorized(request: Request) {
   }
 }
 
-export { getDb } from '@/lib/db'
+export function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    throw new Error('Supabase environment variables are missing')
+  }
+
+  return createClient(url, key)
+}
 
 export async function resolvePlaceInput(input: CaptureInput): Promise<ResolvedPlaceDraft> {
   const rawUrl = cleanText(input.url || input.source_url)

@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
-import { assertAuthorized, getDb, resolvePlaceInput } from '@/lib/places-server'
+import {
+  assertAuthorized,
+  getSupabaseClient,
+  resolvePlaceInput,
+} from '@/lib/places-server'
 import { normalizePlaceInput } from '@/lib/places'
-import { buildInsertQuery } from '@/lib/db'
 import { Place } from '@/types'
 
 export const runtime = 'nodejs'
@@ -40,9 +43,20 @@ export async function POST(request: Request) {
       })
     }
 
-    const client = getDb()
-    const { query, values } = buildInsertQuery('places', payload as Record<string, unknown>)
-    const [data] = await client.unsafe(query, values as (string | number | boolean | null | Date)[])
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('places')
+      .insert([payload])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Places capture error:', error)
+      return NextResponse.json(
+        { error: 'Failed to create place' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       ok: true,
@@ -58,10 +72,6 @@ export async function POST(request: Request) {
     }
 
     if (error instanceof Error && error.message === 'SPOTS_INGEST_SECRET is not configured') {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    if (error instanceof Error && error.message === 'DATABASE_URL is not configured') {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 

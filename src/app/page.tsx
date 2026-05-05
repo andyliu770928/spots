@@ -9,7 +9,7 @@ import CategoryFilter from '@/components/CategoryFilter'
 import RatingFilter from '@/components/RatingFilter'
 import AddPlaceModal from '@/components/AddPlaceModal'
 import { Place } from '@/types'
-import { placesApi } from '@/lib/places-api'
+import { api } from '@/lib/api'
 import { simplifyCategory } from '@/lib/places'
 
 export default function Home() {
@@ -30,7 +30,7 @@ export default function Home() {
   const fetchPlaces = async () => {
     setLoading(true)
     try {
-      const data = await placesApi.getPlaces()
+      const data = await api.getPlaces()
       setPlaces(data)
     } catch (err) {
       console.error('Failed to fetch places:', err)
@@ -42,17 +42,17 @@ export default function Home() {
   const handleAddPlace = async (newPlaceData: Partial<Place>) => {
     try {
       if (editingPlace) {
-        const savedPlace = await placesApi.updatePlace(editingPlace.id, newPlaceData)
+        const savedPlace = await api.updatePlace(editingPlace.id, newPlaceData)
         setPlaces(places.map(place => (place.id === editingPlace.id ? savedPlace : place)))
       } else {
-        const savedPlace = await placesApi.addPlace(newPlaceData)
+        const savedPlace = await api.addPlace(newPlaceData)
         setPlaces([savedPlace, ...places])
       }
       setEditingPlace(null)
       setIsModalOpen(false)
     } catch (err) {
       console.error('Failed to save place:', err)
-      alert('儲存失敗，請檢查資料庫連線或環境變數設定。')
+      alert('儲存失敗，請檢查 Supabase 連線或環境變數設定。')
     }
   }
 
@@ -69,7 +69,7 @@ export default function Home() {
   const handleDeletePlace = async (id: string) => {
     if (!confirm('確定要刪除這個收藏嗎？')) return
     try {
-      await placesApi.deletePlace(id)
+      await api.deletePlace(id)
       setPlaces(places.filter(p => p.id !== id))
     } catch (err) {
       console.error('Delete failed:', err)
